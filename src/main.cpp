@@ -23,7 +23,7 @@ print_usage(std::string const& exec, std::ostream &stream){
          << "   -n <int> Column count of matrix A\n"
          << "   -k <int> Column count of matrix B\n"
          << "   -r <int> dgemm repetition count to measure flops\n"
-         << "   -d <str> comma sep list of device ids to run concurrently run dgemm on\n"
+         << "   -d <str> comma sep list of device ids, indexed at zero, to run concurrently run dgemm on\n"
          << "   -i <int> Number of iterations to of dgemm to perform\n"
          << "   [-o] <str> optional filename to write all data. If not .csv, will write in json\n";
 }
