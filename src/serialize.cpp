@@ -60,7 +60,7 @@ jserialize(args const& inp){
 
 void
 serialize(
-      std::unordered_map<int, dgemm_results> const& map,
+      std::unordered_map<int, gemm_results> const& map,
       args const& inp,
       std::ostream &stream){
 
@@ -92,7 +92,7 @@ serialize(
 
 void
 serialize_csv(
-      std::unordered_map<int, dgemm_results> const& map,
+      std::unordered_map<int, gemm_results> const& map,
       args const& inp,
       std::ostream &stream){
 
@@ -107,7 +107,7 @@ serialize_csv(
    auto const header_str = join(cols, ",");
    stream << header_str << "\n";
 
-   auto const N = max_size(map, [](dgemm_results const& elem){
+   auto const N = max_size(map, [](gemm_results const& elem){
       return elem.flops; }
    );
 

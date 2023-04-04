@@ -57,4 +57,15 @@ private:
 
 
 
+template <typename T>
+darray<T>
+to_device(std::vector<T> const& src){
+   darray<T> ret(src.size());
+   auto err = cudaMemcpy(ret.data(), &src[0], src.size()*sizeof(T), cudaMemcpyHostToDevice);
+
+   return ret;
+}
+
+
+
 #endif /* _DARRAY_H_ */

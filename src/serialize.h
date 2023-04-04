@@ -75,14 +75,14 @@ jserialize(args const& inp);
 
 void
 serialize(
-      std::unordered_map<int, dgemm_results> const& map,
+      std::unordered_map<int, gemm_results> const& map,
       args const& inp,
       std::ostream &stream);
 
 
 void
 serialize_csv(
-      std::unordered_map<int, dgemm_results> const& map,
+      std::unordered_map<int, gemm_results> const& map,
       args const& inp,
       std::ostream &stream);
 

@@ -97,12 +97,13 @@ void task_sync(Q &queue){
 }
 
 
-matrixd
+template <typename T>
+matrix<T>
 pseudo_random_matrix(int m, int n, int seed=0){
-   matrixd mat(m, n);
+   matrix<T> mat(m, n);
    std::mt19937 mt;
    mt.seed(seed);
-   std::uniform_real_distribution<double> unum(-1, 1);
+   std::uniform_real_distribution<T> unum(-1, 1);
    for (int i=0; i<m; ++i){
      for (int j=0; j<n; ++j){
        mat(i, j) = unum(mt);
@@ -114,7 +115,7 @@ pseudo_random_matrix(int m, int n, int seed=0){
 
 void
 print_summary(
-      std::unordered_map<int, dgemm_results> const& rates,
+      std::unordered_map<int, gemm_results> const& rates,
       std::vector<int> const& devices,
       FILE * out){
 
@@ -146,21 +147,23 @@ main(int argc, char *argv[]){
      return 1;
    }
 
-   matrixd A = pseudo_random_matrix(arg_list.m, arg_list.n, 0);
-   matrixd B = pseudo_random_matrix(arg_list.m, arg_list.n, 1);
+   using T = double;
 
-   std::vector<std::future<dgemm_results>> tasks;
+   matrix<T> A = pseudo_random_matrix<T>(arg_list.m, arg_list.n, 0);
+   matrix<T> B = pseudo_random_matrix<T>(arg_list.m, arg_list.n, 1);
+
+   std::vector<std::future<gemm_results>> tasks;
    for (auto it=arg_list.device_ids.begin(); it!=arg_list.device_ids.end(); ++it){
          tasks.push_back(
             std::async(
-               run_dgemm,
+               run_gemm<T>,
                A, B, arg_list.iter_count, arg_list.rep_count, *it)
          );
    }
 
    task_sync(tasks);
 
-   std::unordered_map<int, dgemm_results > rates;
+   std::unordered_map<int, gemm_results > rates;
    for (size_t i=0; i<tasks.size(); ++i){
      rates[arg_list.device_ids[i]] = tasks[i].get();
    }
