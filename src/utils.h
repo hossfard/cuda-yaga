@@ -43,7 +43,7 @@ check_err_impl(cudaError_t err, char const* file, char const* caller_name, int l
    );
    exit(1);
    return err;
-#ifdef
+#endif /* DEBUG */
 }
 
 
