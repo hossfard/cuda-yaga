@@ -23,24 +23,55 @@ vstring split(std::string const& str, char del);
 std::string now_str();
 
 
-#ifdef DEBUG
-inline cudaError_t check_err(cudaError_t err){
+inline
+cudaError_t
+check_err_impl(cudaError_t err, char const* file, char const* caller_name, int line){
+#ifndef DEBUG
+   return err;
+#else
    if (err == cudaSuccess){
      return err;
    }
+
    fprintf(
       stderr,
-      " %s: %s\n",
+      "[%s:%d] %s: %s\n",
+      file,
+      line,
       cudaGetErrorName(err),
       cudaGetErrorString(err)
    );
    exit(1);
+   return err;
+#ifdef
 }
-#else
-inline cudaError_t check_err(cudaError_t err){
+
+
+inline
+cudaError_t
+check_last_err_impl(char const* file, char const* caller_name, int line){
+   auto err = cudaGetLastError();
+
+   if (err == cudaSuccess){
+     return err;
+   }
+
+   fprintf(
+      stderr,
+      "[%s:%d] %s: %s\n",
+      file,
+      line,
+      cudaGetErrorName(err),
+      cudaGetErrorString(err)
+   );
+   exit(1);
    return err;
 }
-#endif
+
+
+#define check_err(err) check_err_impl(err, __FILE__, __func__, __LINE__)
+#define check_last_err() check_last_err_impl(__FILE__, __func__, __LINE__)
+
 
 
 /** Insert input delimeter between vector elements
