@@ -4,6 +4,8 @@
 
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <cuda_runtime.h>
 
 
 struct args{
@@ -25,11 +27,17 @@ struct args{
   static
   bool
   validate(args const& input){
-   return (input.m > 1)
-     && (input.n > 0)
-     && (input.k > 0)
-     && (input.iter_count > 0)
-     && (input.rep_count > 0);
+     int deviceCount = -1;
+     check_err(cudaGetDeviceCount(&deviceCount));
+     auto maxDeviceId = *(std::max_element(
+        input.device_ids.begin(), input.device_ids.end()));
+
+     return (input.m > 1)
+       && (input.n > 0)
+       && (input.k > 0)
+       && (input.iter_count > 0)
+       && (input.rep_count > 0)
+       && (maxDeviceId < deviceCount);
   }
 
 };
