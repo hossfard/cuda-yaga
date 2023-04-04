@@ -136,12 +136,6 @@ int
 main(int argc, char *argv[]){
    auto const arg_list = parse_args(argc, argv);
 
-   // #ifdef DEBUG
-   //    std::cout << "debug" << std::endl;
-   // #else
-   //    std::cout << "no debug" << std::endl;
-   // #endif
-
    if (!args::validate(arg_list)){
      print_usage(argv[0], std::cerr);
      return 1;
