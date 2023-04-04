@@ -14,12 +14,12 @@ public:
      m_data = std::vector<T>(m*n, val);
   }
 
-  double const&
+  T const&
   operator()(int i, int j) const{
      return m_data[i*m_colcount + j];
   }
 
-  double&
+  T&
   operator()(int i, int j){
      return m_data[i*m_colcount + j];
   }
