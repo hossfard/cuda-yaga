@@ -8,11 +8,17 @@
 #include <cuda_runtime.h>
 
 
+enum class precision_t{
+  fp32, fp64
+};
+
+
 struct args{
   // Matrix dimensions
   int m = 0;
   int n = 0;
   int k = 0;
+  precision_t dtype = precision_t::fp32;
 
   std::vector<int> device_ids;
 

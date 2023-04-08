@@ -23,6 +23,7 @@ print_usage(std::string const& exec, std::ostream &stream){
          << "   -n <int> Column count of matrix A\n"
          << "   -k <int> Column count of matrix B\n"
          << "   -r <int> dgemm repetition count to measure flops\n"
+         << "   -p <str> ('fp64', 'fp64') data type - defaults to fp32\n"
          << "   -d <str> comma sep list of device ids, indexed at zero, to run concurrently run dgemm on\n"
          << "   -i <int> Number of iterations to of dgemm to perform\n"
          << "   [-o] <str> optional filename to write all data. If not .csv, will write in json\n";
@@ -57,6 +58,16 @@ parse_args(int argc, char *argv[]){
        std::for_each(vals.begin(), vals.end(), [&ret](std::string const& v){
           ret.device_ids.push_back(std::stoi(v));
        });
+       --argc;
+     }
+     else if (arg == "-p"){
+       std::string const val((++argv)[0]);
+       if (val == "fp32"){
+         ret.dtype = precision_t::fp32;
+       }
+       else if (val == "fp64"){
+         ret.dtype = precision_t::fp64;
+       }
        --argc;
      }
      else if (arg == "-i"){
@@ -132,6 +143,25 @@ print_summary(
 }
 
 
+template <typename T>
+std::vector<std::future<gemm_results>>
+dispatch_gemms(args const& arg_list){
+   matrix<T> const A = pseudo_random_matrix<T>(arg_list.m, arg_list.n, 0);
+   matrix<T> const B = pseudo_random_matrix<T>(arg_list.m, arg_list.n, 0);
+
+   std::vector<std::future<gemm_results>> tasks;
+   for (auto it=arg_list.device_ids.begin(); it!=arg_list.device_ids.end(); ++it){
+         tasks.push_back(
+            std::async(
+               run_gemm<T>,
+               A, B, arg_list.iter_count, arg_list.rep_count, *it)
+         );
+   }
+
+   return tasks;
+}
+
+
 int
 main(int argc, char *argv[]){
    auto const arg_list = parse_args(argc, argv);
@@ -141,18 +171,20 @@ main(int argc, char *argv[]){
      return 1;
    }
 
-   using T = double;
-
-   matrix<T> A = pseudo_random_matrix<T>(arg_list.m, arg_list.n, 0);
-   matrix<T> B = pseudo_random_matrix<T>(arg_list.m, arg_list.n, 1);
 
    std::vector<std::future<gemm_results>> tasks;
-   for (auto it=arg_list.device_ids.begin(); it!=arg_list.device_ids.end(); ++it){
-         tasks.push_back(
-            std::async(
-               run_gemm<T>,
-               A, B, arg_list.iter_count, arg_list.rep_count, *it)
-         );
+   switch (arg_list.dtype){
+      case precision_t::fp32: {
+        tasks = dispatch_gemms<float>(arg_list);
+        break;
+      }
+      case precision_t::fp64: {
+        tasks = dispatch_gemms<double>(arg_list);
+        break;
+      }
+      default: {
+        break;
+      }
    }
 
    task_sync(tasks);
