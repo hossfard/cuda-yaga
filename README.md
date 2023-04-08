@@ -30,6 +30,7 @@ yaga \
    -k 8192 \
    -i 10 \
    -r 10 \
+   -p fp32 \
    -d DEVICE_LIST \
    -o $(hostname)_dgemm.json
 ```
@@ -39,6 +40,7 @@ Where
    - `n` is column count of matrix A
    - `k` is column count of matrix B
    - `i` is iteration count to perform
+   - `p` ('fp32', 'fp64') specifes the gemm data type (single or double)
    - `r` is number of repetitions of dgemm to perform when evaluating
      flops
    - `d` is a comma separated list of device ids to use, indexed at
