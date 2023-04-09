@@ -4,89 +4,82 @@
 
 
 
+namespace jo{
+
+  std::ostream&
+  operator<<(std::ostream &stream, std::string const& d){
+     using std::operator<<;
+     return stream << "\"" << d << "\"";
+  }
+
+};
+
+
 std::ostream&
-elem_serialize(std::string const& d, std::ostream &stream){
-   stream << "\"" + d + "\"";
+operator<<(std::ostream& stream, args const& inp){
+   using jo::operator<<;
+
+   stream << "{";
+     stream << jo::jkey({"m"}) << inp.m << ",";
+     stream << jo::jkey({"n"}) << inp.n << ",";
+     stream << jo::jkey({"k"}) << inp.k << ",";
+     stream << jo::jkey({"i"}) << inp.iter_count << ",";
+     stream << jo::jkey({"r"}) << inp.rep_count << ",";
+
+     stream << jo::jkey({"o"}) << inp.output_fn << ",";
+
+     stream << "\"d\":" << inp.device_ids;
+   stream << "}\n";
+
    return stream;
 }
 
 
 std::ostream&
-jserialize_str(std::vector<std::string> const& data, std::ostream &stream){
-  if (data.size() == 0){
-    stream << "[]";
-    return stream;
-  }
+operator<<(std::ostream& stream, dstate_snapshots const& state){
+   using jo::operator<<;
 
-  stream << "[";
-  for (size_t i=0; i<data.size(); ++i){
-    elem_serialize(data[i], stream);
-
-    if (i != data.size() - 1){
-      stream << ",";
-    }
-  }
-  stream << "]";
-  return stream;
+   stream << "{";
+     stream << "\"id\":" << state.id << ",";
+     stream << "\"t\":" << state.t << ",";
+     stream << "\"temp.gpu\":" << state.temperature << ",";
+     stream << "\"power\":" << state.power << ",";
+     stream << "\"clock.sm\":" << state.smClock << ",";
+     stream << "\"clock.mem\":" << state.memClock << ",";
+     stream << "\"fans.speed\":" << state.fans;
+   stream << "}";
+   return stream;
 }
-
-
-std::string
-jserialize(vstring const& data){
-  std::ostringstream stream;
-  jserialize(data, stream);
-  return stream.str();
-}
-
-
-
-std::string
-jserialize(args const& inp){
-   std::string ret = "{";
-
-   ret += "\"m\":" + std::to_string(inp.m) + ",";
-   ret += "\"n\":" + std::to_string(inp.n) + ",";
-   ret += "\"k\":" + std::to_string(inp.k) + ",";
-   ret += "\"i\":" + std::to_string(inp.iter_count) + ",";
-   ret += "\"r\":" + std::to_string(inp.rep_count) + ",";
-   ret += "\"o\":\"" + inp.output_fn + "\",";
-   ret += "\"d\":" + jserialize(inp.device_ids);
-   ret += "}";
-
-   return ret;
-}
-
 
 
 void
 serialize(
       std::unordered_map<int, gemm_results> const& map,
+      std::vector<dstate_snapshots> const& device_hist,
       args const& inp,
       std::ostream &stream){
 
-   std::string flop_vec;
-   for (auto it=map.begin(); it!=map.end(); ++it){
-     if (it != map.begin()){
-       flop_vec += ",";
-     }
-     flop_vec += "\"" + std::to_string(it->first) + "\":"
-       + jserialize(it->second.flops);
-   }
+   using jo::operator<<;
 
-   std::string time_vec;
-   for (auto it=map.begin(); it!=map.end(); ++it){
-     if (it != map.begin()){
-       time_vec += ",";
-     }
-     time_vec += "\"" + std::to_string(it->first) + "\":"
-       + jserialize(it->second.time_points);
-   }
+   stream << "{\n";
 
-   stream << "{"
-          << "\"flop_rates\": {" + flop_vec + "},"
-          << "\"times\": {" + time_vec  + "},"
-          << "\"args\":" + jserialize(inp)
-          << "}";
+     // Flops
+     stream << jo::jkey({"devices"}) << inp.device_ids << ",\n";
+     stream << jo::jkey({"perf"}) << "[\n";
+       for (int i=0; i<inp.device_ids.size(); ++i){
+         stream << "{\n";
+           auto const id = inp.device_ids[i];
+           stream << jo::jkey({"id"}) << i << ",";
+           stream << jo::jkey({"t"}) << map.at(id).time_points << ",";
+           stream << jo::jkey({"flops"}) << map.at(id).flops;
+         stream << "}\n" << ((i < inp.device_ids.size()-1) ? "," : "");
+       }
+     stream << "],\n";
+
+     // input
+     stream << jo::jkey({"args"}) << inp;
+
+   stream << "}";
 }
 
 
@@ -110,7 +103,6 @@ serialize_csv(
    auto const N = max_size(map, [](gemm_results const& elem){
       return elem.flops; }
    );
-
 
    // Write data
    for (size_t i=0; i<N; ++i){

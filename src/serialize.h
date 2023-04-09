@@ -10,59 +10,50 @@
 #include "utils.h"
 #include "args.h"
 #include "dgemm.h"
+#include "dquery.h"
 
 
 
-template <
-  typename D,
-  typename = std::enable_if_t<std::is_arithmetic<D>::value, D>
->
-std::ostream&
-elem_serialize(D const& d, std::ostream &stream){
-   stream << std::to_string(d);
-   return stream;
-}
+namespace jo{
+  std::ostream&
+  operator<<(std::ostream &stream, std::string const& d);
+
+  struct jkey{
+    std::string value;
+  };
 
 
-std::ostream&
-elem_serialize(std::string const& d, std::ostream &stream);
-
-
-template <typename V>
-std::ostream&
-jserialize(V const& data, std::ostream &stream){
-  if (data.size() == 0){
-    stream << "[]";
-    return stream;
+  inline std::ostream&
+  operator<<(std::ostream &stream, jkey const& d){
+     return stream << d.value << ":";
   }
 
-  stream << "[";
-  for (size_t i=0; i<data.size(); ++i){
-    elem_serialize(data[i], stream);
+  template <typename T>
+  std::ostream&
+  operator<<(std::ostream &stream, std::vector<T> const& data){
+     if (data.size() == 0){
+       stream << "[]";
+       return stream;
+     }
 
-    if (i != data.size() - 1){
-      stream << ",";
-    }
+     using jo::operator<<;
+
+     stream << "[";
+     for (size_t i=0; i<data.size(); ++i){
+       stream << data[i];
+       if (i != data.size() - 1){
+         stream << ",";
+       }
+     }
+     stream << "]";
+     return stream;
   }
-  stream << "]";
-  return stream;
-}
+
+};
 
 
 std::ostream&
 jserialize_str(std::vector<std::string> const& data, std::ostream &stream);
-
-
-template <
-  typename Vec,
-  typename = std::enable_if_t<std::is_arithmetic<typename Vec::value_type>::value, Vec>
->
-std::string
-jserialize(Vec const& data){
-  std::ostringstream stream;
-  jserialize(data, stream);
-  return stream.str();
-}
 
 
 std::string
@@ -76,6 +67,7 @@ jserialize(args const& inp);
 void
 serialize(
       std::unordered_map<int, gemm_results> const& map,
+      std::vector<dstate_snapshots> const& device_hist,
       args const& inp,
       std::ostream &stream);
 

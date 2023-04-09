@@ -67,15 +67,14 @@ local timestamp when the flop-rate was estimated. Output format is
 
 ```text
 {
-  "flop_rates": {
-     "<device_id_1>": [<flop_rates>, ...],
-     "<device_id_2>": [<flop_rates>, ...],
-     ...
-  },
-  "times": {
-     "<device_id_1>": ["<timestamp>", ...],
-     "<device_id_2>": ["<timestamp>", ...],
-     ...
+  "devices": [<int>, <int>, ...]
+  "perf": [
+     {
+        "id": <device_id:int>,
+        "t": ["<timestamp:str>", ...],
+        "flops": [<terraflops:number>, ...],
+     },
+     { ... }
   },
   "args": {
      <input args as key-value pairs>
