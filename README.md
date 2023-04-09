@@ -1,8 +1,10 @@
-# What is it
+# About
 
 Yet Another GEMM Application (YAGA) to run dense matrix-matrix
 multiplications on GPUs and measure the acheived flops as a function
-of time. Supports multiple GPUs on a single node.
+of time. Also periodically queries the gpu states and dumps fan speed,
+die temperature, and clock frequencies. Supports multiple GPUs on a
+single node.
 
 
 <p align="center">
@@ -36,7 +38,7 @@ yaga \
    -i 10 \
    -r 10 \
    -p fp32 \
-   -d DEVICE_LIST \
+   -d 0 \
    -o $(hostname)_dgemm.json
 ```
 
