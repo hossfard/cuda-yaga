@@ -25,7 +25,7 @@ operator<<(std::ostream& stream, args const& inp){
      stream << jo::jkey({"k"}) << inp.k << ",";
      stream << jo::jkey({"i"}) << inp.iter_count << ",";
      stream << jo::jkey({"r"}) << inp.rep_count << ",";
-
+     stream << jo::jkey({"p"}) << to_string(inp.dtype) << ",";
      stream << jo::jkey({"o"}) << inp.output_fn << ",";
 
      stream << "\"d\":" << inp.device_ids;

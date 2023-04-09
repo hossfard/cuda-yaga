@@ -14,6 +14,20 @@ enum class precision_t{
 };
 
 
+inline
+std::string
+to_string(precision_t dtype){
+   switch (dtype){
+      case precision_t::fp32:
+        return "fp32";
+      case precision_t::fp64:
+        return "fp64";
+      default:
+        return "";
+   }
+}
+
+
 struct args{
   // Matrix dimensions
   int m = 0;
