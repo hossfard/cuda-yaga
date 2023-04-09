@@ -25,6 +25,21 @@ struct dstate_snapshot{
 };
 
 
+struct device_info{
+  unsigned int id;
+  char name[NVML_DEVICE_NAME_BUFFER_SIZE];
+  char vbios[NVML_DEVICE_VBIOS_VERSION_BUFFER_SIZE];
+  nvmlPciInfo_t pci;
+  unsigned int fan_count;
+};
+
+
+struct sys_info{
+  int cuda_driver;
+  char driver[NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE];
+};
+
+
 struct dstate_snapshots{
   dstate_snapshots(unsigned int id) : id(id) { }
 
@@ -103,6 +118,45 @@ public:
      nv_check_err(nvmlShutdown());
   }
 };
+
+
+inline
+sys_info
+nv_sys_info(){
+   nvmlctx ctx;
+   sys_info ret;
+   nvmlSystemGetDriverVersion(ret.driver, NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE);
+   nvmlSystemGetCudaDriverVersion_v2(&ret.cuda_driver);
+   return ret;
+}
+
+
+inline
+device_info
+nv_device_info(unsigned int id){
+   nvmlctx ctx;
+   device_info ret;
+   nvmlDevice_t device;
+   ret.id = id;
+   nvmlDeviceGetHandleByIndex_v2(id, &device);
+   nvmlDeviceGetPciInfo(device, &ret.pci);
+   nvmlDeviceGetNumFans(device, &ret.fan_count);
+   nvmlDeviceGetName(device, ret.name, NVML_DEVICE_NAME_BUFFER_SIZE);
+   nvmlDeviceGetVbiosVersion(device, ret.vbios, NVML_DEVICE_VBIOS_VERSION_BUFFER_SIZE);
+
+   return ret;
+}
+
+
+inline
+std::vector<device_info>
+nv_device_list_info(std::vector<int> ids){
+   std::vector<device_info> ret;
+   for (auto id : ids){
+     ret.push_back(nv_device_info(id));
+   }
+   return ret;
+}
 
 
 #endif /* DQUERY_H_ */

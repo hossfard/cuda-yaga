@@ -36,6 +36,35 @@ operator<<(std::ostream& stream, args const& inp){
 
 
 std::ostream&
+operator<<(std::ostream& stream, device_info const& info){
+   using jo::operator<<;
+
+   stream << "{";
+     stream << jo::jkey({"id"}) << info.id << ",";
+     stream << jo::jkey({"name"}) << "\"" << info.name << "\",";
+     stream << jo::jkey({"vbios"}) << "\"" << info.vbios << "\",";
+     stream << jo::jkey({"busid"}) << "\"" << info.pci.busId << "\",";
+     stream << jo::jkey({"fans"}) << info.fan_count;
+   stream << "}\n";
+
+   return stream;
+}
+
+
+std::ostream&
+operator<<(std::ostream& stream, sys_info const& info){
+   using jo::operator<<;
+
+   stream << "{";
+     stream << jo::jkey({"driver"}) << "\"" << info.driver << "\",";
+     stream << jo::jkey({"cuda"}) << info.cuda_driver;
+   stream << "}\n";
+
+   return stream;
+}
+
+
+std::ostream&
 operator<<(std::ostream& stream, dstate_snapshots const& state){
    using jo::operator<<;
 
@@ -56,6 +85,8 @@ void
 serialize(
       std::unordered_map<int, gemm_results> const& map,
       std::vector<dstate_snapshots> const& device_hist,
+      std::vector<device_info> const& devices,
+      sys_info const& sysinfo,
       args const& inp,
       std::ostream &stream){
 
@@ -63,8 +94,13 @@ serialize(
 
    stream << "{\n";
 
+     // sysinfo
+     stream << jo::jkey({"system"}) << sysinfo << ",\n";
+
+     // devices
+     stream << jo::jkey({"devices"}) << devices << ",\n";
+
      // Flops
-     stream << jo::jkey({"devices"}) << inp.device_ids << ",\n";
      stream << jo::jkey({"perf"}) << "[\n";
        for (int i=0; i<inp.device_ids.size(); ++i){
          stream << "{\n";

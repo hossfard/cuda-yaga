@@ -66,8 +66,10 @@ jserialize(args const& inp);
 
 void
 serialize(
-      std::unordered_map<int, gemm_results> const& map,
+      std::unordered_map<int, gemm_results> const& perf,
       std::vector<dstate_snapshots> const& device_hist,
+      std::vector<device_info> const& devices,
+      sys_info const& sysinfo,
       args const& inp,
       std::ostream &stream);
 

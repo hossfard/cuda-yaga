@@ -144,6 +144,10 @@ main(int argc, char *argv[]){
      return 1;
    }
 
+   auto const devices = nv_device_list_info(arg_list.device_ids);
+   auto const sysinfo = nv_sys_info();
+
+
    monitor mon(arg_list.device_ids, 5);
    mon.start();
 
@@ -179,7 +183,7 @@ main(int argc, char *argv[]){
         serialize_csv(rates, arg_list, out);
       }
       else{
-        serialize(rates, device_hist, arg_list, out);
+        serialize(rates, device_hist, devices, sysinfo, arg_list, out);
       }
    }
 
