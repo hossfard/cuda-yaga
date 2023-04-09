@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <random>
 #include "matrix.h"
-#include "dgemm.h"
+#include "gemm.h"
 #include "utils.h"
 #include "args.h"
 #include "serialize.h"

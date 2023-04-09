@@ -1,5 +1,5 @@
-#ifndef _DGEMM_H_
-#define _DGEMM_H_
+#ifndef _GEMM_H_
+#define _GEMM_H_
 
 
 #include <vector>
@@ -44,8 +44,8 @@ gemm(cublasHandle_t handle,
  *
  * @param A input matrix A
  * @param B input matrix B
- * @param inter_count number of iterations to perform dgemm
- * @param rep_count number of times to perform dgemm to compute flops
+ * @param inter_count number of iterations to perform gemm
+ * @param rep_count number of times to perform gemm to compute flops
  * @param device_id GPU device id, indexed at 0, to run on
  * @return estimated terraflops and corresponding local time
  *
@@ -114,4 +114,4 @@ run_gemm(matrix<T> const& A, matrix<T> const& B,
 
 
 
-#endif /* _DGEMM_H_ */
+#endif /* _GEMM_H_ */

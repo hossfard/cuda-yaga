@@ -40,7 +40,7 @@ struct args{
   // number of times to perform
   int iter_count = 1;
 
-  // number of times to repeat dgemm while measuring time
+  // number of times to repeat gemm while measuring time
   int rep_count = 10;
 
   std::string output_fn;
@@ -70,10 +70,10 @@ struct args{
             << "   -m <int> Row count of matrix A\n"
             << "   -n <int> Column count of matrix A\n"
             << "   -k <int> Column count of matrix B\n"
-            << "   -r <int> dgemm repetition count to measure flops\n"
+            << "   -r <int> gemm repetition count to measure flops\n"
             << "   -p <str> ('fp64', 'fp64') data type - defaults to fp32\n"
-            << "   -d <str> comma sep list of device ids, indexed at zero, to run concurrently run dgemm on\n"
-            << "   -i <int> Number of iterations to of dgemm to perform\n"
+            << "   -d <str> comma sep list of device ids, indexed at zero, to run concurrently run gemm on\n"
+            << "   -i <int> Number of iterations to of gemm to perform\n"
             << "   [-o] <str> optional filename to write all data. If not .csv, will write in json\n";
   }
 

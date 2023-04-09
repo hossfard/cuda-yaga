@@ -9,7 +9,7 @@
 #include <sstream>
 #include "utils.h"
 #include "args.h"
-#include "dgemm.h"
+#include "gemm.h"
 #include "dquery.h"
 
 
