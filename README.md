@@ -63,27 +63,84 @@ format, depending on the specific output file extension via `-o`.
 
 Default output format is json unless `csv` extension is specified in
 output filename. The results per iteration are recorded along with the
-local timestamp when the flop-rate was estimated. Output format is
+local timestamp when the flop-rate was estimated. Example output is
+shown below
 
 ```text
 {
-  "devices": [<int>, <int>, ...]
+  "system":{
+     "driver": "530.30.02",
+     "cuda": 12010
+  },
+  "devices": [
+     {
+        "id": 0,
+        "name": "NVIDIA GeForce RTX 3090",
+        "vbios": "94.02.42.80.14",
+        "busid": "00000000:2D:00.0",
+        "fans": 2
+     }
+  ],
   "perf": [
      {
-        "id": <device_id:int>,
-        "t": ["<timestamp:str>", ...],
-        "flops": [<terraflops:number>, ...],
+        "id": 0,
+        "t": [
+           "2023-04-08 20:54:26.348",
+           "2023-04-08 20:54:26.837",
+           "2023-04-08 20:54:27.327"
+        ],
+        "flops": [
+           0.552147,
+           0.552147,
+           0.552147
+        ],
      },
-     { ... }
-  },
+  ],
+  "states": [
+     {
+        "id": 0,
+        "t": [
+           "2023-04-08 20:54:23.892",
+           "2023-04-08 20:54:28.894",
+           "2023-04-08 20:54:33.896"
+        ],
+        "temp.gpu": [
+            32, 37, 38
+        ],
+        "power":[
+            104744, 185047, 185823
+        ],
+        "clock.sm": [
+          1800, 1980, 1980
+        ],
+        "clock.mem": [
+          9751,9501,9501
+        ],
+        "fans.speed":[
+          [0,0], [0,0], [0,0]
+        ]
+     }
+  ],
   "args": {
-     <input args as key-value pairs>
+     "m": 3000,
+     "n": 3000,
+     "k": 3000,
+     "i": 1000,
+     "r": 5,
+     "p": "fp64",
+     "o":"fp64.json",
+     "d": [0]
   }
 }
 ```
 
-where `<timestamp>` format is `YYYY-mm-dd HH:MM:SS.ZZZ`, and
-`<device_id_N>` are specified input device ids (0, 1, 2, ...).
+Notes:
+  - Timestamps output format is in `YYYY-mm-dd HH:MM:SS.ZZZ`
+  - device ids are indexed at zero
+  - `fans.speed` are the *target* fan speed, in percentage, at a given
+    point in time
+  - `clock.<>` are in MHz
+  - `power` is in milliwatts
 
 
 ## csv
