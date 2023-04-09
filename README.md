@@ -5,6 +5,11 @@ multiplications on GPUs and measure the acheived flops as a function
 of time. Supports multiple GPUs on a single node.
 
 
+<p align="center">
+   <img src="example/output-fp32.svg" alt="visualization of yaga output"/>
+</p>
+
+
 # Requirements
 
 - cmake
