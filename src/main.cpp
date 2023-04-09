@@ -11,6 +11,8 @@
 #include "utils.h"
 #include "args.h"
 #include "serialize.h"
+#include "dquery.h"
+#include <thread>
 
 
 
@@ -76,6 +78,63 @@ dispatch_gemms(args const& arg_list){
 }
 
 
+struct monitor{
+public:
+  monitor(std::vector<int> devices, unsigned int interval_s=5)
+    : m_run(false), m_interval_s(interval_s), m_devices(devices)
+  {  }
+
+  bool
+  start(){
+     if (m_run){
+       return false;
+     }
+
+     m_data = std::async(&monitor::_run, this);
+     return true;
+  }
+
+  std::vector<dstate_snapshots>
+  stop(){
+     if (!m_run){
+       return std::vector<dstate_snapshots>();
+     }
+
+     m_run = false;
+     m_data.wait();
+     return m_data.get();
+  }
+
+private:
+  std::vector<dstate_snapshots>
+  _run(){
+     m_run = true;
+
+     std::vector<dstate_snapshots> ret;
+     for (auto id : m_devices){
+       ret.push_back(dstate_snapshots(id));
+     }
+
+     nvmlctx ctx;
+     while (m_run){
+       for (unsigned int i=0; i<m_devices.size(); ++i){
+         auto const id = m_devices[i];
+         ret[i] += snapshot(id);
+       }
+
+       std::this_thread::sleep_for(
+          std::chrono::milliseconds(m_interval_s*1000));
+     }
+     return ret;
+  }
+
+  std::atomic<bool> m_run;
+  unsigned int m_interval_s;
+  std::vector<int> m_devices;
+  std::future<std::vector<dstate_snapshots>> m_data;
+};
+
+
 int
 main(int argc, char *argv[]){
    auto const arg_list = args::parse(argc, argv);
@@ -85,6 +144,8 @@ main(int argc, char *argv[]){
      return 1;
    }
 
+   monitor mon(arg_list.device_ids, 5);
+   mon.start();
 
    std::vector<std::future<gemm_results>> tasks;
    switch (arg_list.dtype){
@@ -103,6 +164,8 @@ main(int argc, char *argv[]){
 
    task_sync(tasks);
 
+   auto const device_hist = mon.stop();
+
    std::unordered_map<int, gemm_results > rates;
    for (size_t i=0; i<tasks.size(); ++i){
      rates[arg_list.device_ids[i]] = tasks[i].get();
@@ -116,7 +179,7 @@ main(int argc, char *argv[]){
         serialize_csv(rates, arg_list, out);
       }
       else{
-        serialize(rates, arg_list, out);
+        serialize(rates, device_hist, arg_list, out);
       }
    }
 

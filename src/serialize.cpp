@@ -76,6 +76,9 @@ serialize(
        }
      stream << "],\n";
 
+     // State
+     stream << jo::jkey({"states"}) << device_hist << ",\n";
+
      // input
      stream << jo::jkey({"args"}) << inp;
 

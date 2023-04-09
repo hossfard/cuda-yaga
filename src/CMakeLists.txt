@@ -27,4 +27,4 @@ target_include_directories(
      ${CMAKE_CURRENT_LIST_DIR}
 )
 
-target_link_libraries(${BINOUT} LINK_PUBLIC -lcublas -lcudart)
+target_link_libraries(${BINOUT} LINK_PUBLIC -lcublas -lcudart -lnvidia-ml)
