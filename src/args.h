@@ -71,7 +71,7 @@ struct args{
             << "   -n <int> Column count of matrix A\n"
             << "   -k <int> Column count of matrix B\n"
             << "   -r <int> gemm repetition count to measure flops\n"
-            << "   -p <str> ('fp64', 'fp64') data type - defaults to fp32\n"
+            << "   -p <str> ('fp32', 'fp64') data type - defaults to fp32\n"
             << "   -d <str> comma sep list of device ids, indexed at zero, to run concurrently run gemm on\n"
             << "   -i <int> Number of iterations to of gemm to perform\n"
             << "   [-o] <str> optional filename to write all data. If not .csv, will write in json\n";
